@@ -29,9 +29,10 @@ namespace net_logging
         level = loggingEvent.Level.DisplayName,
         message = loggingEvent.MessageObject,
         fault = GetProperty ("fault"),
-        stacktrace = loggingEvent.ExceptionObject != null ? GenerateStackTrace (loggingEvent.ExceptionObject) : null,
-        payload = GetProperty ("fault")
+        stacktrace = loggingEvent.ExceptionObject != null ? GenerateStackTrace (loggingEvent.ExceptionObject, true) : null,
+        payload = GetProperty ("payload")
       });
+
       writer.WriteLine (format);
     }
 
@@ -40,22 +41,41 @@ namespace net_logging
       return ThreadContext.Properties[key] != null ? ThreadContext.Properties[key] : GlobalContext.Properties[key];
     }
 
-    private List<Object> GenerateStackTrace (Exception ex)
+    private List<Object> GenerateStackTrace (Exception ex, bool recursive)
     {
-      if (ex.InnerException != null)
+      var stack = new List<Object> ();
+
+      if (recursive)
       {
-        return GenerateStackTrace (ex.InnerException);
+        // All exception stack will be printed.
+
+        if (ex.InnerException != null)
+        {
+          stack.AddRange (GenerateStackTrace (ex.InnerException, recursive));
+        }
+      }
+      else
+      {
+        ex = ExtractInnerException(ex);
       }
 
-      var stacks = new List<Object> ();
-      stacks.Add (new 
+      stack.Add (new 
       {
         exception = ex.GetType ().FullName,
         message = ex.Message,
         stack = GenerateStackTrace (new StackTrace (ex, true))
       });
 
-      return stacks;
+      return stack;
+    }
+
+    private Exception ExtractInnerException(Exception ex) {
+        while (ex.InnerException != null)
+        {
+          ex = ex.InnerException;
+        }
+
+        return ex;
     }
 
     private List<Object> GenerateStackTrace (StackTrace trace)
