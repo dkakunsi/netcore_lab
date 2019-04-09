@@ -12,6 +12,8 @@ namespace net_logging
 {
   class StandardizedLayout : PatternLayout
   {
+    public string Attributes { get; set; }
+
     public override void Format (TextWriter writer, LoggingEvent loggingEvent)
     {
       var format = JsonConvert.SerializeObject (new
@@ -30,7 +32,8 @@ namespace net_logging
         message = loggingEvent.MessageObject,
         fault = GetProperty ("fault"),
         stacktrace = loggingEvent.ExceptionObject != null ? GenerateStackTrace (loggingEvent.ExceptionObject, true) : null,
-        payload = GetProperty ("payload")
+        payload = GetProperty ("payload"),
+        attributes = Attributes
       });
 
       writer.WriteLine (format);
