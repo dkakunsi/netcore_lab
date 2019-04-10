@@ -1,9 +1,11 @@
+using net_logging.Layout;
+
 namespace net_logging.AttributeLoader
 {
-    public interface AttributeLoader
+    public interface IAttributeLoader
     {
-        bool contain(string key);
+        bool Contains(string key);
 
-        object get(string key);
+        object Load(string key);
     }
 }

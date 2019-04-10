@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using log4net.Appender;
+using log4net;
 using log4net.Core;
 
 namespace net_logging
@@ -10,9 +11,10 @@ namespace net_logging
   {
     static void Main(string[] args)
     {
-      var logRepository = log4net.LogManager.GetRepository(Assembly.GetEntryAssembly());
+      var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
       log4net.Config.XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
-      log4net.ThreadContext.Properties["correlationId"] = "0xecdd43523666723600093";
+      ThreadContext.Properties["correlationId"] = "0xecdd43523666723600093";
+      ThreadContext.Properties["service"] = "Main";
 
       Runner runner = new Runner();
       runner.run();
