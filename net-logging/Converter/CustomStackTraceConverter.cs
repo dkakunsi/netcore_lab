@@ -10,12 +10,26 @@ namespace net_logging.Converter
 {
     public class CustomStackTraceConverter : PatternLayoutConverter
     {
-        public bool IsRecursive { get; set; }
-
         protected override void Convert(TextWriter writer, LoggingEvent loggingEvent)
         {
-            var format = JsonConvert.SerializeObject (GenerateStackTrace (loggingEvent.ExceptionObject, IsRecursive));
+            var format = JsonConvert.SerializeObject (GenerateStackTrace (loggingEvent.ExceptionObject, IsRecursive ()));
             writer.Write (format);
+        }
+
+        private bool IsRecursive ()
+        {
+            var isRecursive = this.Properties["recursive"];
+
+            if (isRecursive == null)
+            {
+                return false;
+            }
+
+            if (!"true".Equals (isRecursive.ToString ().ToLower ()))
+            {
+                return false;
+            }
+            return true;
         }
 
         private List<Object> GenerateStackTrace (Exception ex, bool recursive)
