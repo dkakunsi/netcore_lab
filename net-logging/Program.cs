@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using log4net.Appender;
 using log4net;
+using log4net.Config;
 using log4net.Core;
 
 namespace net_logging
@@ -12,7 +13,7 @@ namespace net_logging
     static void Main(string[] args)
     {
       var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
-      log4net.Config.XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
+      XmlConfigurator.Configure(logRepository, new FileInfo("log4net.config"));
       ThreadContext.Properties["correlationId"] = "0xecdd43523666723600093";
       ThreadContext.Properties["service"] = "Main";
 

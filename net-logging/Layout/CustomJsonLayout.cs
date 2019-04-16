@@ -16,20 +16,15 @@ namespace net_logging.Layout
 
         public LoggingEvent Event { get; set; }
 
-        private IAttributeLoader HostAttributeLoader;
-
-        private IAttributeLoader ContextAttributeLoader;
-
-        private EventAttributeLoader EventAttributeLoader;
-
-        private StacktraceAttributeLoader StacktraceAttributeLoader;
+        private IAttributeLoader[] attributeLoaders;
 
         public CustomJsonLayout () : base ()
         {
-            this.HostAttributeLoader = new HostAttributeLoader();
-            this.ContextAttributeLoader = new ContextAttributeLoader();
-            this.EventAttributeLoader = new EventAttributeLoader(this);
-            this.StacktraceAttributeLoader = new StacktraceAttributeLoader(this);
+            this.attributeLoaders = new IAttributeLoader[4];
+            this.attributeLoaders[0] = new HostAttributeLoader();
+            this.attributeLoaders[1] = new ContextAttributeLoader();
+            this.attributeLoaders[2] = new EventAttributeLoader(this);
+            this.attributeLoaders[3] = new StacktraceAttributeLoader(this);
             this.IgnoresException = false;
         }
 
@@ -53,22 +48,14 @@ namespace net_logging.Layout
 
         private IAttributeLoader SelectLoader (string key)
         {
-            if (this.EventAttributeLoader.Contains (key))
+            foreach (IAttributeLoader attributeLoader in this.attributeLoaders)
             {
-                return this.EventAttributeLoader;
+                if (attributeLoader.Contains (key))
+                {
+                    return attributeLoader;
+                }
             }
-            else if (this.HostAttributeLoader.Contains (key))
-            {
-                return this.HostAttributeLoader;
-            }
-            else if (this.StacktraceAttributeLoader.Contains (key))
-            {
-                return this.StacktraceAttributeLoader;
-            }
-            else
-            {
-                return this.ContextAttributeLoader;
-            }
+            return this.attributeLoaders[0];
         }
     }
 }
